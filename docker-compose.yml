@@ -1,0 +1,126 @@
+networks:
+  shared-network:
+    driver: bridge
+
+services:
+
+# This is the core CRUD ToDo based service.
+#  todo-service:
+#    container_name: todo-service
+#    networks:
+#      - shared-network
+#    build:
+#      context: todo-service
+#      dockerfile: Dockerfile
+#    ports:
+#      - 8080:8080 # CRUD API
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - mongodb
+#      - zipkin
+
+# This is the UI for TOdo
+#  todo-ui:
+#    container_name: todo-ui
+#    networks:
+#      - shared-network
+#    build:
+#      context: frontend
+#      dockerfile: Dockerfile
+#    ports:
+#      - 4200:4200
+#    environment:
+  #      - SPRING_PROFILES_ACTIVE=docker
+
+  # This starts a local MongoDB.
+  mongodb:
+    container_name: mongodb
+    networks:
+      - shared-network
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_DATABASE=todoapp
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - /app/mongo:/data/db
+    ports:
+      - 27017:27017
+
+#  user-service:
+#    container_name: user-service
+#    networks:
+#      - shared-network
+#    build:
+#      context: user-service
+#      dockerfile: Dockerfile
+#    ports:
+#      - 8081:8081 # CRUD API
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/users
+#      - SPRING_DATASOURCE_USERNAME=admin
+#      - SPRING_DATASOURCE_PASSWORD=admin
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - postgres
+#      - zipkin
+
+#  notification:
+#    container_name: notification
+#    networks:
+#      - shared-network
+#    build:
+#      context: user-service
+#      dockerfile: Dockerfile
+#    ports:
+#      - 8082:8082 # CRUD API
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/notification
+#      - SPRING_DATASOURCE_USERNAME=admin
+#      - SPRING_DATASOURCE_PASSWORD=admin
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - postgres
+#      - zipkin
+#      - rabbitmq
+
+  postgres:
+      container_name: postgres
+      image: postgres
+      environment:
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+        APP_DB_USER: docker
+        APP_DB_PASS: docker
+        USER_DB: users
+        NOTIFICATION_DB: notification
+      volumes:
+        - ./initdb/notification.sql:/docker-entrypoint-initdb.d/notification.sql
+        - ./initdb/users.sql:/docker-entrypoint-initdb.d/users.sql
+      ports:
+        - "5432:5432"
+      networks:
+        - shared-network
+      restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - shared-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - shared-network
+
+volumes:
+  postgres:

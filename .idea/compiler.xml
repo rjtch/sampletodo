@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="notification" />
+        <module name="todo-service" />
+        <module name="user-service" />
+        <module name="todo-clients" />
+        <module name="todo-amqp" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="authService" target="8" />
+      <module name="notification" target="17" />
+      <module name="todo-amqp" target="16" />
+      <module name="todo-clients" target="16" />
+      <module name="todo-service" target="17" />
+      <module name="toDoApp" target="8" />
+      <module name="todoSample" target="17" />
+      <module name="toDoService" target="8" />
+      <module name="user-service" target="17" />
+      <module name="userService" target="8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
