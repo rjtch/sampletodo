@@ -1,0 +1,9 @@
+de/todoSample/todo/model/Todo.class
+de/todoSample/todo/controller/TodoController.class
+de/todoSample/todo/TodoServiceApplication.class
+de/todoSample/todo/model/Todo$TodoBuilder.class
+de/todoSample/todo/repository/TodoRepository.class
+de/todoSample/todo/model/TodoCategory.class
+de/todoSample/todo/model/TodoPriority.class
+de/todoSample/todo/model/TodoRequestRegister.class
+de/todoSample/todo/service/TodoService.class
