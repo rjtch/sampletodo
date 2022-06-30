@@ -29,7 +29,7 @@
         <springdoc-openapi-ui.version>1.5.10</springdoc-openapi-ui.version>
         <springfox.version>2.9.2</springfox.version><!-- springfox replacement for OpenApi 3 -->
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <spring.cloud-version>2020.0.3</spring.cloud-version>
+        <spring.cloud-version>2021.0.1</spring.cloud-version>
         <spring.boot.maven.plugin.version>2.6.7</spring.boot.maven.plugin.version>
         <image>todosample/${project.artifactId}:${project.version}</image>
     </properties>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.5.7</version>
+                <version>2.6.7</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

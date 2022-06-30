@@ -1,6 +1,7 @@
 package de.todoSample.todo.service;
 
 import de.todoSample.amqp.RabbitMQMessageProducer;
+import de.todoSample.clients.notification.NotificationRequest;
 import de.todoSample.clients.todo.TodoRequest;
 import de.todoSample.todo.model.Todo;
 import de.todoSample.todo.model.TodoRequestRegister;
@@ -29,20 +30,17 @@ public class TodoService {
                 .category(register.category())
                 .priority(register.priority())
                 .build();
+
+        NotificationRequest todoResponse = new NotificationRequest(
+                todo.getUserId(),
+                todo.getAuthor(),
+                String.format("Hi %s, welcome to sampletodo...", todo.getTaskDescription()));
+
+        rabbitMQMessageProducer.publish(todoResponse,
+                "internal.exchange", "internal.notification.routing-key");
+
         //Todo find a way to flush the data first like it is done in jpa
         todoRepository.save(todo);
-
-        TodoRequest todoResponse = new TodoRequest(
-                todo.getUserId(),
-                todo.getModifiedDate(),
-                todo.getTaskName(),
-                todo.getTaskDescription(),
-                todo.getAuthor(),
-                todo.isFinished(),
-                todo.getCreatedDate());
-
-        rabbitMQMessageProducer.publish(todoResponse + " : " + todo.getTaskName(),
-                "internal.exchange", "internal.notification.routingKey");
 
     }
 
