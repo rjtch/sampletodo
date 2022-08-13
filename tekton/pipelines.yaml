@@ -39,13 +39,6 @@ spec:
     - name: dockerconfig
       description: Docker config secret
       optional: true
-  results:
-    - name: cd.artifact.id
-      value: $(tasks.export-results.results.artifactId)
-    - name: cd.artifact.name
-      value: $(tasks.export-results.results.artifactName)
-    - name: cd.artifact.version
-      value: $(tasks.export-results.results.artifactVersion)
   tasks:
     - name: clone-repo
       taskRef:
@@ -61,16 +54,10 @@ spec:
     - name: image-build
       runAfter: [clone-repo]
       taskRef:
-        name: kaniko
+        name: jib-maven
       params:
         - name: IMAGE
           value: $(params.target)/$(params.target-name):$(params.version)
-        - name: CONTEXT
-          value: $(params.context)
-        - name: DOCKERFILE
-          value: $(params.dockerfile)
-        - name: EXTRA_ARGS
-          value: ["$(params.kanikoExtraArgs[*])"]
       workspaces:
         - name: source
           workspace: sources
@@ -159,13 +146,6 @@ spec:
     - name: dockerconfig
       description: Docker config secret
       optional: true
-  results:
-    - name: cd.artifact.id
-      value: $(tasks.export-results.results.artifactId)
-    - name: cd.artifact.name
-      value: $(tasks.export-results.results.artifactName)
-    - name: cd.artifact.version
-      value: $(tasks.export-results.results.artifactVersion)
   tasks:
     - name: clone-repo
       taskRef:
@@ -181,16 +161,10 @@ spec:
     - name: image-build
       runAfter: [clone-repo]
       taskRef:
-        name: kaniko
+        name: jib-maven
       params:
         - name: IMAGE
           value: $(params.target)/$(params.target-name):$(params.version)
-        - name: CONTEXT
-          value: $(params.context)
-        - name: DOCKERFILE
-          value: $(params.dockerfile)
-        - name: EXTRA_ARGS
-          value: ["$(params.kanikoExtraArgs[*])"]
       workspaces:
         - name: source
           workspace: sources
@@ -279,13 +253,6 @@ spec:
     - name: dockerconfig
       description: Docker config secret
       optional: true
-  results:
-    - name: cd.artifact.id
-      value: $(tasks.export-results.results.artifactId)
-    - name: cd.artifact.name
-      value: $(tasks.export-results.results.artifactName)
-    - name: cd.artifact.version
-      value: $(tasks.export-results.results.artifactVersion)
   tasks:
     - name: clone-repo
       taskRef:
@@ -301,16 +268,10 @@ spec:
     - name: image-build
       runAfter: [clone-repo]
       taskRef:
-        name: kaniko
+        name: jib-maven
       params:
         - name: IMAGE
           value: $(params.target)/$(params.target-name):$(params.version)
-        - name: CONTEXT
-          value: $(params.context)
-        - name: DOCKERFILE
-          value: $(params.dockerfile)
-        - name: EXTRA_ARGS
-          value: ["$(params.kanikoExtraArgs[*])"]
       workspaces:
         - name: source
           workspace: sources
