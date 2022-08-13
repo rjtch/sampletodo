@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: build-artifact
+  name: build-notification-artifact
   annotations:
     description: |
       Build the container image of the todoApp Head service
@@ -17,27 +17,15 @@ spec:
     - name: context
       description: The path to the docker notification service in the sources workspace
       default: notification
-    - name: context
-      description: The path to the docker user-service in the sources workspace
-      default: user-service
-    - name: context
-      description: The path to the docker todo-service in the sources workspace
-      default: todo-service 
     - name: dockerfile
       description: The path to the dockerfile within the respective service
       default: Dockerfile
     - name: target
       description: The target container registry and path where to build the image
       default: kind-registry:5000/todoapp
-    - name: target-notification
+    - name: target-name
       description: Name of the image to publish
       default: notification
-    - name: target-user
-      description: Name of the image to publish
-      default: user-service
-    - name: target-todo
-      description: Name of the image to publish
-      default: todo-service
     - name: version
       description: the target version to build
       default: v1.0
@@ -62,7 +50,6 @@ spec:
     - name: clone-repo
       taskRef:
         name: git-clone
-        bundle: gcr.io/tekton-releases/catalog/upstream/git-clone:0.4
       params:
         - name: url
           value: $(params.gitRepository)
@@ -75,7 +62,6 @@ spec:
       runAfter: [clone-repo]
       taskRef:
         name: kaniko
-        bundle: gcr.io/tekton-releases/catalog/upstream/kaniko:0.4
       params:
         - name: IMAGE
           value: $(params.target)/$(params.target-name):$(params.version)
@@ -130,112 +116,244 @@ spec:
         - name: version
           value: $(params.version)
         - name: uri
-          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE-DIGEST)
+          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: deploy-artifact
-  namespace: tektontutorial
+  name: build-todo-artifact
   annotations:
     description: |
-      Deploy the Podtato Head service
-    cd.service.deployed: enabled
+      Build the container image of the todoApp Head service
+    cd.artifact.packaged: enabled
 spec:
   params:
-    - name: image
-    - name: name
-    - name: shkeptncontext
-    - name: triggerid
-    - name: envId
+    - name: gitRepository
+      description: The git repository that hosts context and Dockerfile
+      default: https://github.com/rjtch/sampletodo
+    - name: gitRevision
+      description: The git revision to build
+      default: main
+    - name: context
+      description: The path to the docker todo-service in the sources workspace
+      default: todo-service 
+    - name: dockerfile
+      description: The path to the dockerfile within the respective service
+      default: Dockerfile
+    - name: target
+      description: The target container registry and path where to build the image
+      default: kind-registry:5000/todoapp
+    - name: target-name
+      description: Name of the image to publish
+      default: todo-service
+    - name: version
+      description: the target version to build
+      default: v1.0
+    - name: kanikoExtraArgs
+      type: array
+      description: extra args to pass to the kaniko builder
+      default: [--insecure-registry=kind-registry:5000]
+  workspaces:
+    - name: sources
+      description: Workspace where the git repo is prepared for testing
+    - name: dockerconfig
+      description: Docker config secret
+      optional: true
   results:
-    - name: cd.service.envId
-      value: $(tasks.deploy.results.envId)
-    - name: cd.service.name
-      value: $(tasks.deploy.results.serviceName)
-    - name: cd.service.version
-      value: $(tasks.deploy.results.serviceVersion)
-    - name: sh.keptn.context
-      value: $(tasks.deploy.results.shkeptncontext)
-    - name: sh.keptn.trigger.id
-      value: $(tasks.deploy.results.shkeptntriggerid)
+    - name: cd.artifact.id
+      value: $(tasks.export-results.results.artifactId)
+    - name: cd.artifact.name
+      value: $(tasks.export-results.results.artifactName)
+    - name: cd.artifact.version
+      value: $(tasks.export-results.results.artifactVersion)
   tasks:
-    - name: deploy
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.gitRepository)
+        - name: revision
+          value: $(params.gitRevision)
+      workspaces:
+        - name: output
+          workspace: sources
+    - name: image-build
+      runAfter: [clone-repo]
+      taskRef:
+        name: kaniko
+      params:
+        - name: IMAGE
+          value: $(params.target)/$(params.target-name):$(params.version)
+        - name: CONTEXT
+          value: $(params.context)
+        - name: DOCKERFILE
+          value: $(params.dockerfile)
+        - name: EXTRA_ARGS
+          value: ["$(params.kanikoExtraArgs[*])"]
+      workspaces:
+        - name: source
+          workspace: sources
+        - name: dockerconfig
+          workspace: dockerconfig
+    - name: export-results
+      runAfter: [image-build]
       taskSpec:
         params:
-          - name: envId
           - name: name
-          - name: image
-          - name: shkeptncontext
-          - name: shkeptntriggerid
+          - name: version
+          - name: uri
         results:
-          - name: envId
-          - name: serviceName
-          - name: serviceVersion
-          - name: shkeptncontext
-          - name: shkeptntriggerid
-        stepTemplate:
-          env:
-            - name: NAMESPACE
-              value: $(params.envId)
-            - name: SERVICE_NAME
-              value: $(params.name)
-            - name: CONTAINER_IMAGE
-              value: $(params.image)
+          - name: artifactName
+            description: The name of the artifact
+          - name: artifactVersion
+            description: The version of the artifact
+          - name: artifactId
+            description: The full URL of the artifact, with version
         steps:
-          - name: deploy
-            image: docker.io/bitnami/kubectl@sha256:792e0aaabee6c51d734b5d3b150ba990d6106c4c081731d8570c1b9afe0c52d9
+          - name: create-results
+            image: alpine
+            env:
+              - name: ARTIFACT_NAME_RESULT_PATH
+                value: $(results.artifactName.path)
+              - name: ARTIFACT_VERSION_RESULT_PATH
+                value: $(results.artifactVersion.path)
+              - name: ARTIFACT_ID_RESULT_PATH
+                value: $(results.artifactId.path)
+              - name: ARTIFACT_NAME_RESULT_VALUE
+                value: $(params.name)
+              - name: ARTIFACT_VERSION_RESULT_VALUE
+                value: $(params.version)
+              - name: ARTIFACT_ID_RESULT_VALUE
+                value: $(params.uri)
             script: |
-              #!/bin/sh
-              set -ex
-              # Try to create a deployment, in case it's our first run
-              kubectl create deployment ${SERVICE_NAME} --image ${CONTAINER_IMAGE} -n ${NAMESPACE} || true
-              # Update the deployment, rollout new image
-              kubectl set image deployment/${SERVICE_NAME} *=${CONTAINER_IMAGE} -n ${NAMESPACE}
-              # Create a service if it doesn't exists yet
-              kubectl expose deployment/${SERVICE_NAME} --port 8080 --target-port 80 -n ${NAMESPACE} || true
-          - name: ingress
-            image: docker.io/bitnami/kubectl@sha256:792e0aaabee6c51d734b5d3b150ba990d6106c4c081731d8570c1b9afe0c52d9
-            script: |
-              #!/bin/bash
-              set -ex
-              # Create an Ingress (unless it exists already)
-              cat <<EOF | kubectl create -f - || true
-              apiVersion: networking.k8s.io/v1
-              kind: Ingress
-              metadata:
-                name: ${SERVICE_NAME}
-                namespace: ${NAMESPACE}
-                annotations:
-                  kubernetes.io/ingress.class: "contour-external"
-              spec:
-                rules:
-                - host: ${SERVICE_NAME}-127.0.0.1.nip.io
-                  http:
-                    paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: ${SERVICE_NAME}
-                          port:
-                            number: 8080
-              EOF
-              # Export results
-              printf "$(params.shkeptncontext)" > $(results.shkeptncontext.path)
-              printf "$(params.shkeptntriggerid)" > $(results.shkeptntriggerid.path)
-              printf "http://${SERVICE_NAME}-127.0.0.1.nip.io" > $(results.envId.path)
-              printf "${SERVICE_NAME}" > $(results.serviceName.path)
-              # Export the deployment generation as serviceVersion
-              kubectl get deployment/${SERVICE_NAME} -n ${NAMESPACE} -o jsonpath='{.metadata.generation}' > $(results.serviceVersion.path)
+              printf "$ARTIFACT_NAME_RESULT_VALUE" > "$ARTIFACT_NAME_RESULT_PATH"
+              printf "$ARTIFACT_VERSION_RESULT_VALUE" > "$ARTIFACT_VERSION_RESULT_PATH"
+              printf "$ARTIFACT_ID_RESULT_VALUE" > "$ARTIFACT_ID_RESULT_PATH"
       params:
-        - name: envId
-          value: $(params.envId)
         - name: name
-          value: $(params.name)
-        - name: image
-          value: $(params.image)
-        - name: shkeptncontext
-          value: $(params.shkeptncontext)
-        - name: shkeptntriggerid
-          value: $(params.triggerid)
+          value: $(params.target-name)
+        - name: version
+          value: $(params.version)
+        - name: uri
+          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-user-artifact
+  annotations:
+    description: |
+      Build the container image of the todoApp Head service
+    cd.artifact.packaged: enabled
+spec:
+  params:
+    - name: gitRepository
+      description: The git repository that hosts context and Dockerfile
+      default: https://github.com/rjtch/sampletodo
+    - name: gitRevision
+      description: The git revision to build
+      default: main
+    - name: context
+      description: The path to the docker user-service in the sources workspace
+      default: user-service
+    - name: dockerfile
+      description: The path to the dockerfile within the respective service
+      default: Dockerfile
+    - name: target
+      description: The target container registry and path where to build the image
+      default: kind-registry:5000/user-service
+    - name: target-name
+      description: Name of the image to publish
+      default: user-service
+    - name: version
+      description: the target version to build
+      default: v1.0
+    - name: kanikoExtraArgs
+      type: array
+      description: extra args to pass to the kaniko builder
+      default: [--insecure-registry=kind-registry:5000]
+  workspaces:
+    - name: sources
+      description: Workspace where the git repo is prepared for testing
+    - name: dockerconfig
+      description: Docker config secret
+      optional: true
+  results:
+    - name: cd.artifact.id
+      value: $(tasks.export-results.results.artifactId)
+    - name: cd.artifact.name
+      value: $(tasks.export-results.results.artifactName)
+    - name: cd.artifact.version
+      value: $(tasks.export-results.results.artifactVersion)
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.gitRepository)
+        - name: revision
+          value: $(params.gitRevision)
+      workspaces:
+        - name: output
+          workspace: sources
+    - name: image-build
+      runAfter: [clone-repo]
+      taskRef:
+        name: kaniko
+      params:
+        - name: IMAGE
+          value: $(params.target)/$(params.target-name):$(params.version)
+        - name: CONTEXT
+          value: $(params.context)
+        - name: DOCKERFILE
+          value: $(params.dockerfile)
+        - name: EXTRA_ARGS
+          value: ["$(params.kanikoExtraArgs[*])"]
+      workspaces:
+        - name: source
+          workspace: sources
+        - name: dockerconfig
+          workspace: dockerconfig
+    - name: export-results
+      runAfter: [image-build]
+      taskSpec:
+        params:
+          - name: name
+          - name: version
+          - name: uri
+        results:
+          - name: artifactName
+            description: The name of the artifact
+          - name: artifactVersion
+            description: The version of the artifact
+          - name: artifactId
+            description: The full URL of the artifact, with version
+        steps:
+          - name: create-results
+            image: alpine
+            env:
+              - name: ARTIFACT_NAME_RESULT_PATH
+                value: $(results.artifactName.path)
+              - name: ARTIFACT_VERSION_RESULT_PATH
+                value: $(results.artifactVersion.path)
+              - name: ARTIFACT_ID_RESULT_PATH
+                value: $(results.artifactId.path)
+              - name: ARTIFACT_NAME_RESULT_VALUE
+                value: $(params.name)
+              - name: ARTIFACT_VERSION_RESULT_VALUE
+                value: $(params.version)
+              - name: ARTIFACT_ID_RESULT_VALUE
+                value: $(params.uri)
+            script: |
+              printf "$ARTIFACT_NAME_RESULT_VALUE" > "$ARTIFACT_NAME_RESULT_PATH"
+              printf "$ARTIFACT_VERSION_RESULT_VALUE" > "$ARTIFACT_VERSION_RESULT_PATH"
+              printf "$ARTIFACT_ID_RESULT_VALUE" > "$ARTIFACT_ID_RESULT_PATH"
+      params:
+        - name: name
+          value: $(params.target-name)
+        - name: version
+          value: $(params.version)
+        - name: uri
+          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
