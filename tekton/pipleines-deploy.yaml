@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: deploy-artifact
-  namespace: tektontutorial
+  namespace: tekton-pipelines
   annotations:
     description: |
       Deploy the Podtato Head service

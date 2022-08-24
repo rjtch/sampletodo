@@ -52,12 +52,20 @@ spec:
         - name: output
           workspace: sources
     - name: image-build
-      runAfter: [clone-repo]
       taskRef:
-        name: jib-maven
+        name: maven
+      runAfter:
+        - clone-repo
       params:
-        - name: IMAGE
-          value: $(params.target)/$(params.target-name):$(params.version)
+        - name: MAVEN_MIRROR_URL
+          value: http://repo1.maven.org/maven2
+        - name: CONTEXT_DIR
+          value: $(params.context)
+        - name: GOALS
+          value:
+            - -DskipTests
+            - clean
+            - package
       workspaces:
         - name: source
           workspace: sources
@@ -103,7 +111,7 @@ spec:
         - name: version
           value: $(params.version)
         - name: uri
-          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
+          value: $(params.target)/$(params.target-name)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -159,12 +167,20 @@ spec:
         - name: output
           workspace: sources
     - name: image-build
-      runAfter: [clone-repo]
       taskRef:
-        name: jib-maven
+        name: maven
+      runAfter:
+        - clone-repo
       params:
-        - name: IMAGE
-          value: $(params.target)/$(params.target-name):$(params.version)
+        - name: MAVEN_MIRROR_URL
+          value: http://repo1.maven.org/maven2
+        - name: CONTEXT_DIR
+          value: $(params.context)
+        - name: GOALS
+          value:
+            - -DskipTests
+            - clean
+            - package
       workspaces:
         - name: source
           workspace: sources
@@ -210,7 +226,7 @@ spec:
         - name: version
           value: $(params.version)
         - name: uri
-          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
+          value: $(params.target)/$(params.target-name)
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -266,12 +282,20 @@ spec:
         - name: output
           workspace: sources
     - name: image-build
-      runAfter: [clone-repo]
       taskRef:
-        name: jib-maven
+        name: maven
+      runAfter:
+        - clone-repo
       params:
-        - name: IMAGE
-          value: $(params.target)/$(params.target-name):$(params.version)
+        - name: MAVEN_MIRROR_URL
+          value: http://repo1.maven.org/maven2
+        - name: CONTEXT_DIR
+          value: $(params.context)
+        - name: GOALS
+          value:
+            - -DskipTests
+            - clean
+            - package
       workspaces:
         - name: source
           workspace: sources
@@ -317,4 +341,4 @@ spec:
         - name: version
           value: $(params.version)
         - name: uri
-          value: $(params.target)/$(params.target-name)@$(tasks.image-build.results.IMAGE_DIGEST)
+          value: $(params.target)/$(params.target-name)
