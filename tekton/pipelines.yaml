@@ -34,11 +34,14 @@ spec:
       description: extra args to pass to the kaniko builder
       default: [--insecure-registry=kind-registry:5000]
   workspaces:
-    - name: sources
+    - name: shared-workspace
       description: Workspace where the git repo is prepared for testing
     - name: dockerconfig
       description: Docker config secret
       optional: true
+    - name: maven-settings
+      description: maven build workspace
+      optional: false
   tasks:
     - name: clone-repo
       taskRef:
@@ -50,15 +53,13 @@ spec:
           value: $(params.gitRevision)
       workspaces:
         - name: output
-          workspace: sources
+          workspace: shared-workspace
     - name: image-build
       taskRef:
         name: maven
       runAfter:
         - clone-repo
       params:
-        - name: MAVEN_MIRROR_URL
-          value: http://repo1.maven.org/maven2
         - name: CONTEXT_DIR
           value: $(params.context)
         - name: GOALS
@@ -67,10 +68,10 @@ spec:
             - clean
             - package
       workspaces:
+        - name: maven-settings
+          workspace: maven-settings
         - name: source
-          workspace: sources
-        - name: dockerconfig
-          workspace: dockerconfig
+          workspace: shared-workspace
     - name: export-results
       runAfter: [image-build]
       taskSpec:
@@ -184,8 +185,7 @@ spec:
       workspaces:
         - name: source
           workspace: sources
-        - name: dockerconfig
-          workspace: dockerconfig
+          subpath: todo-service
     - name: export-results
       runAfter: [image-build]
       taskSpec:
@@ -299,8 +299,7 @@ spec:
       workspaces:
         - name: source
           workspace: sources
-        - name: dockerconfig
-          workspace: dockerconfig
+          subpath: user-service
     - name: export-results
       runAfter: [image-build]
       taskSpec:
