@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: build-app-artifact
+  name: build-notification-artifact
   annotations:
     description: |
       Build the container image of the todoApp Head service
@@ -16,7 +16,7 @@ spec:
       default: main
     - name: context
       description: The path to the docker notification service in the sources workspace
-      default: sampletodo
+      default: notification
     - name: dockerfile
       description: The path to the dockerfile within the respective service
       default: Dockerfile
@@ -25,7 +25,7 @@ spec:
       default: kind-registry:5000/todoapp
     - name: target-name
       description: Name of the image to publish
-      default: app
+      default: notification
     - name: version
       description: the target version to build
       default: v1.0
@@ -33,7 +33,7 @@ spec:
       type: string
       description: Use storage driver type vfs if you are running on OpenShift.
       default: vfs
-    - default: .
+    - default: notification
       description: The Knative Service name
       name: kn-service-name
       type: string
@@ -100,4 +100,36 @@ spec:
           workspace: maven-settings
         - name: source
           workspace: source
-  
+    - name: build-app-image
+      params:
+        - name: CONTEXT
+          value: $(params.context)
+        - name: IMAGE
+          value: $(params.image-name)
+        - name: STORAGE_DRIVER
+          value: $(params.storageDriver)
+        - name: TLSVERIFY
+          value: 'false'
+      runAfter:
+        - build-app
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source
+    - name: deploy-kn-service
+      params:
+        - name: ARGS
+          value:
+            - service
+            - create
+            - $(params.kn-service-name)
+            - '--force'
+            - >-
+              --image=$(params.image-name)@$(tasks.build-app-image.results.IMAGE_DIGEST) 
+      runAfter:
+        - build-app-image
+      taskRef:
+        kind: Task
+        name: kn
