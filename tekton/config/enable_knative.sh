@@ -36,7 +36,7 @@ kubectl apply \
   --filename \
     "https://github.com/knative/net-kourier/releases/download/$knative_serving_version/kourier.yaml"
   
-kubectl rollout status deploy 3scale-kourier-control -n knative-serving 
+kubectl rollout status deploy net-kourier-controller -n knative-serving 
 kubectl rollout status deploy 3scale-kourier-gateway -n kourier-system
 
 kubectl patch configmap/config-network \

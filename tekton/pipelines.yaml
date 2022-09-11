@@ -16,7 +16,7 @@ spec:
       default: main
     - name: context
       description: The path to the docker notification service in the sources workspace
-      default: sampletodo
+      default: .
     - name: dockerfile
       description: The path to the dockerfile within the respective service
       default: Dockerfile
@@ -63,38 +63,16 @@ spec:
       workspaces:
         - name: output
           workspace: source
-    - name: run-test
+    - name: build-app
       params:
         - name: GOALS
           value:
-            - -DskipTests
-            - clean
             - package
       runAfter:
         - clone-repo
       taskRef:
         kind: Task
-        name: maven
-      workspaces:
-        - name: maven-settings
-          workspace: maven-settings
-        - name: source
-          workspace: source
-    - name: build-app
-      params:
-        - name: GOALS
-          value:
-            - '-pl'
-            - $(params.context)
-            - '-B'
-            - '-DskipTests'
-            - clean
-            - package
-      runAfter:
-        - run-test
-      taskRef:
-        kind: Task
-        name: maven
+        name: mvn
       workspaces:
         - name: maven-settings
           workspace: maven-settings

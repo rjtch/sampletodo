@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kn-deployer-account
-  namespace: tekton-pipelines
+  namespace: workspace-auth-demo
 ---
 
 kind: ClusterRole
@@ -24,7 +24,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: kn-deployer-account
-  namespace: tekton-pipelines
+  namespace: workspace-auth-demo
 roleRef:
   kind: ClusterRole
   name: kn-deployer

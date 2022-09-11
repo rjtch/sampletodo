@@ -1,8 +1,6 @@
 FROM openjdk:18-alpine
 
-ENV APP_HOME /usr/app
-
-WORKDIR $APP_HOME
+WORKDIR /usr/app
 
 COPY target/user-service*.jar .
 

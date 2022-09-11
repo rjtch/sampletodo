@@ -19,13 +19,7 @@ spec:
       default: notification
     - name: dockerfile
       description: The path to the dockerfile within the respective service
-      default: Dockerfile
-    - name: target
-      description: The target container registry and path where to build the image
-      default: kind-registry:5000/todoapp
-    - name: target-name
-      description: Name of the image to publish
-      default: notification
+      default: ./Dockerfile
     - name: version
       description: the target version to build
       default: v1.0
@@ -41,7 +35,7 @@ spec:
         The fully qualified image name. If you are running on Minikube please
         use example.com/tekton-tutorial/greeter On OpenShift, use
         image-registry.minikube-image-registry.svc:5000/tekton-piplines/todo
-      default: image-registry.minikube-image-registry.svc:5000/tekton-piplines/todo
+      default: image-registry.openshift-image-registry.svc:5000/workspace-auth-demo/sampletodo
       name: image-name 
       type: string
   workspaces:
@@ -63,45 +57,10 @@ spec:
       workspaces:
         - name: output
           workspace: source
-    - name: run-test
-      params:
-        - name: GOALS
-          value:
-            - -DskipTests
-            - clean
-            - package
-      runAfter:
-        - clone-repo
-      taskRef:
-        kind: Task
-        name: maven
-      workspaces:
-        - name: maven-settings
-          workspace: maven-settings
-        - name: source
-          workspace: source
-    - name: build-app
-      params:
-        - name: GOALS
-          value:
-            - '-pl'
-            - $(params.context)
-            - '-B'
-            - '-DskipTests'
-            - clean
-            - package
-      runAfter:
-        - run-test
-      taskRef:
-        kind: Task
-        name: maven
-      workspaces:
-        - name: maven-settings
-          workspace: maven-settings
-        - name: source
-          workspace: source
     - name: build-app-image
       params:
+        - name: DOCKERFILE
+          value: $(params.dockerfile)
         - name: CONTEXT
           value: $(params.context)
         - name: IMAGE
@@ -111,9 +70,9 @@ spec:
         - name: TLSVERIFY
           value: 'false'
       runAfter:
-        - build-app
+        - clone-repo
       taskRef:
-        kind: ClusterTask
+        kind: Task
         name: buildah
       workspaces:
         - name: source
