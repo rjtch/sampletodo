@@ -1,6 +1,6 @@
 FROM openjdk:18-alpine
 
-WORKDIR /usr/app
+#WORKDIR /usr/app
 
 COPY target/notification*.jar .
 
