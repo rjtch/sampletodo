@@ -19,7 +19,7 @@ spec:
       default: notification
     - name: dockerfile
       description: The path to the dockerfile within the respective service
-      default: ./Dockerfile
+#      default: ./Dockerfile
     - name: version
       description: the target version to build
       default: v1.0
@@ -35,7 +35,7 @@ spec:
         The fully qualified image name. If you are running on Minikube please
         use example.com/tekton-tutorial/greeter On OpenShift, use
         image-registry.minikube-image-registry.svc:5000/tekton-piplines/todo
-      default: image-registry.openshift-image-registry.svc:5000/workspace-auth-demo/sampletodo
+      default: localhost:5000
       name: image-name 
       type: string
   workspaces:
@@ -59,8 +59,6 @@ spec:
           workspace: source
     - name: build-app-image
       params:
-        - name: DOCKERFILE
-          value: $(params.dockerfile)
         - name: CONTEXT
           value: $(params.context)
         - name: IMAGE
