@@ -35,7 +35,7 @@ spec:
         The fully qualified image name. If you are running on Minikube please
         use example.com/tekton-tutorial/greeter On OpenShift, use
         image-registry.minikube-image-registry.svc:5000/tekton-piplines/todo
-      default: localhost:5000
+      default: notification
       name: image-name 
       type: string
   workspaces:
@@ -56,6 +56,26 @@ spec:
           value: 'true'
       workspaces:
         - name: output
+          workspace: source
+    - name: build-java-app
+      params:
+        - name: GOALS
+          value:
+            - '-pl'
+            - $(params.context)
+            - '-B'
+            - '-DskipTests'
+            - clean
+            - package
+      runAfter:
+        - clone-repo
+      taskRef:
+        kind: Task
+        name: maven
+      workspaces:
+        - name: maven-settings
+          workspace: maven-settings
+        - name: source
           workspace: source
     - name: build-app-image
       params:
