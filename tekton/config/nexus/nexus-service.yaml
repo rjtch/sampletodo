@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nexus-service
+  name: nexus
   annotations:
       prometheus.io/scrape: 'true'
       prometheus.io/path:   /
