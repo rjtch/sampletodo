@@ -1,4 +1,4 @@
-FROM openjdk:18-alpine
+FROM registry.access.redhat.com/ubi8/openjdk-11
 
 WORKDIR /usr/app
 
