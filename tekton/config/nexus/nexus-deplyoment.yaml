@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: nexus
-          image: quay.io/travelaudience/docker-nexus:3.19.1
+#          image: quay.io/travelaudience/docker-nexus:3.19.1
+          image: sonatype/nexus
           resources:
             limits:
               memory: "4Gi"

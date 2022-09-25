@@ -17,9 +17,18 @@ spec:
     - name: context
       description: The path to the docker notification service in the sources workspace
       default: .
+    - name: notification
+      description: The path to the docker notification service in the sources workspace
+      default: notification
+    - name: todo-service
+      description: The path to the docker notification service in the sources workspace
+      default: todo-service
+    - name: user-service
+      description: The path to the docker notification service in the sources workspace
+      default: user-service
     - name: dockerfile
       description: The path to the dockerfile within the respective service
-      default: Dockerfile
+      default: context/Dockerfile
     - name: target
       description: The target container registry and path where to build the image
       default: kind-registry:5000/todoapp
@@ -67,15 +76,68 @@ spec:
       params:
         - name: GOALS
           value:
+            - '-pl'
+            - $(params.context)
+            - '-B'
+            - '-DskipTests'
+            - clean
             - package
       runAfter:
         - clone-repo
       taskRef:
         kind: Task
-        name: mvn
+        name: maven
       workspaces:
         - name: maven-settings
           workspace: maven-settings
+        - name: source
+          workspace: source
+    - name: build-notification-image
+      params:
+        - name: CONTEXT
+          value: $(params.notification)
+        - name: IMAGE
+          value: $(params.notification)
+        - name: TLSVERIFY
+          value: 'false'
+      runAfter:
+        - build-app
+      taskRef:
+        kind: Task 
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source
+    - name: build-userservice-image
+      params:
+        - name: CONTEXT
+          value: $(params.user-service)
+        - name: IMAGE
+          value: $(params.user-service)
+        - name: TLSVERIFY
+          value: 'false'
+      runAfter:
+        - build-notification-image
+      taskRef:
+        kind: Task 
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: source
+    - name: build-todoservice-image
+      params:
+        - name: CONTEXT
+          value: $(params.todo-service)
+        - name: IMAGE
+          value: $(params.todo-service)
+        - name: TLSVERIFY
+          value: 'false'
+      runAfter:
+        - build-userservice-image
+      taskRef:
+        kind: Task 
+        name: buildah
+      workspaces:
         - name: source
           workspace: source
   

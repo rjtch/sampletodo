@@ -11,12 +11,17 @@
       <username>admin</username>
       <password>admin123</password>
     </server>
+    <server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
   </servers>
   <mirrors>
     <mirror>
       <id>nexus</id>
       <mirrorOf>*</mirrorOf>
-      <url>https://repo1.maven.org/maven2</url>
+      <url>https://repo1.maven.org/maven2/</url>
     </mirror>
   </mirrors>
   <profiles>
@@ -37,11 +42,6 @@
         </repository>
       </repositories>
       <pluginRepositories>
-        <pluginRepository>
-          <id>maven1</id>
-          <name>Maven.org</name>
-          <url>https://repo1.maven.org/maven2</url>
-        </pluginRepository>      
         <pluginRepository>
           <id>central</id>
           <url>http://central</url>
