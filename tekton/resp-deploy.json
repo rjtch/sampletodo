@@ -3,7 +3,7 @@
     "timestamp": "2022-11-07T19:37:45.753Z",
     "caller": "logging/config.go:80",
     "message": "Unable to read vcs.revision from binary"
-  },{
+  }{
     "severity": "info",
     "timestamp": "2022-11-07T19:40:58.168Z",
     "logger": "eventlistener",
