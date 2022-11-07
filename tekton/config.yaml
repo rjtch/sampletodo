@@ -1,0 +1,8 @@
+pod_namespace: lighthouse
+prowjob_namespace: lighthouse
+tide:
+  queries:
+  - labels:
+    - approved
+    repos:
+    - rjtchBot/lighthouse-config
