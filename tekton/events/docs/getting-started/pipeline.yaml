@@ -1,9 +1,3 @@
----
-# The getting-started Pipeline will run through several tasks:
-# - source is pulled from git
-# - source is built into an image by img
-# - image output is pushed to ECR
-# - cloudevent emitted
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -78,23 +72,11 @@ spec:
   - name: pathToContext
     description:
       The build directory used by img
-    default: .
-  - name: context
-    description: The path to the docker notification service in the sources workspace
-    default: .
-  - name: notification
-    description: The path to the docker notification service in the sources workspace
-    default: notification
-  - name: todo-service
-    description: The path to the docker notification service in the sources workspace
-    default: todo-service
-  - name: user-service
-    description: The path to the docker notification service in the sources workspace
-    default: user-service
+    default: /workspace/source-repo
   - name: pathToDockerFile
     type: string
     description: The path to the dockerfile to build
-    default: context/Dockerfile
+    default: $(resources.inputs.source-repo.path)/Dockerfile
   resources:
     inputs:
       - name: source-repo
