@@ -1,7 +1,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: build-app-artifact
+  name: getting-started-pipeline
+  namespace: getting-started
   annotations:
     description: |
       Build the container image of the todoApp Head service
@@ -140,4 +141,32 @@ spec:
       workspaces:
         - name: source
           workspace: source
-  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-display
+  namespace: getting-started
+  labels:
+    app: event-display
+spec:
+  type: ClusterIP
+  ports:
+    - name: listener
+      port: 8080
+      protocol: TCP
+  selector:
+    app: event-display
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: event-display
+  namespace: getting-started
+  labels:
+    app: event-display
+spec:
+  hostname: event-display
+  containers:
+  - image: gcr.io/knative-releases/github.com/knative/eventing-sources/cmd/event_display
+    name: web
