@@ -13,10 +13,6 @@ spec:
     value: "sampletodo"
   - name: GitHubSecretName
     value: webhook-secret
-  - name: GitHubAccessTokenKey
-    value: token
-  - name: GitHubSecretStringKey
-    value: secret
   - name: ExternalDomain
     value: getting-started.rjtch.com
 #   If you are using github enterprise, provide a value for GitHubDomain
