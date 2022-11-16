@@ -86,13 +86,14 @@ spec:
         type: image
   steps:
     - name: build-and-push
-      image: gcr.io/kaniko-project/executor:v0.16.0
+      image: gcr.io/kaniko-project/executor:latest
       command:
-        - /kaniko/executor
+        - /kaniko/executor 
       args:
         - --dockerfile=$(params.pathToDockerFile)
-        - --destination=$(resources.outputs.builtImage.url)
-        - --context=$(params.pathToContext)
+        - --destination=trigger-example:lastest
+        - --context=dir:/$(params.pathToContext)
+        - --no-push
 ---
 # Finally, we need something to receive our cloudevent announcing success!
 # That is this services only purpose
