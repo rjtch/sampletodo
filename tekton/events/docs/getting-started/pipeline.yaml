@@ -94,6 +94,9 @@ spec:
         - --destination=trigger-example:lastest
         - --context=dir:/$(params.pathToContext)
         - --no-push
+
+
+
 ---
 # Finally, we need something to receive our cloudevent announcing success!
 # That is this services only purpose
