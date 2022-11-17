@@ -59,7 +59,7 @@ spec:
         - "run"
         - "tekton-triggers-built-me"
         - "--image"
-        - "$(resources.inputs.image-source.url)"
+        - "trigger-example:lastest"
         - "--env=PORT=8080"
 ---
 apiVersion: tekton.dev/v1beta1
