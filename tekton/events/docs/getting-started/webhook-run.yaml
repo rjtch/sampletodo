@@ -19,8 +19,6 @@ spec:
     value: token
   - name: GitHubSecretStringKey
     value: secret
-  - name: ExternalDomain
-    value: getting-started.rjtch.com
 #   If you are using github enterprise, provide a value for GitHubDomain
 #  - name: GitHubDomain
 #    value: git.corp.com
