@@ -7,6 +7,8 @@ spec:
   taskRef:
     name: create-webhook
   params:
+  - name: GitHubOrg
+    value: "rjtch"
   - name: GitHubUser
     value: "rjtch"
   - name: GitHubRepo

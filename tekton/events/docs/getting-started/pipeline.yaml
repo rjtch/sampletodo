@@ -53,12 +53,11 @@ spec:
       type: cloudEvent
   steps:
     - name: run-kubectl
-      image: lachlanevenson/k8s-kubectl:latest
+      image: lachlanevenson/k8s-kubectl
       command: ["kubectl"]
       args:
         - "run"
         - "tekton-triggers-built-me"
-        - "--env="POD_NAMESPACE=getting-started"
         - "--image"
         - "trigger-example:lastest"
         - "--env=PORT=8080"
