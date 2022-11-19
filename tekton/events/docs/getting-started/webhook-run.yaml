@@ -18,7 +18,7 @@ spec:
   - name: GitHubAccessTokenKey
     value: token
   - name: GitHubSecretStringKey
-    value: secret
+    value: secret 
 #   If you are using github enterprise, provide a value for GitHubDomain
 #  - name: GitHubDomain
 #    value: git.corp.com
