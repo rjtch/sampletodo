@@ -53,7 +53,7 @@ spec:
       type: cloudEvent
   steps:
     - name: run-kubectl
-      image: lachlanevenson/k8s-kubectl
+      image: lachlanevenson/k8s-kubectl:latest
       command: ["kubectl"]
       args:
         - "run"
