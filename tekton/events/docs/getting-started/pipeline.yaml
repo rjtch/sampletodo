@@ -58,6 +58,7 @@ spec:
       args:
         - "run"
         - "tekton-triggers-built-me"
+        - "--env="POD_NAMESPACE=getting-started"
         - "--image"
         - "trigger-example:lastest"
         - "--env=PORT=8080"
