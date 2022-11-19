@@ -18,7 +18,9 @@ spec:
   - name: GitHubAccessTokenKey
     value: token
   - name: GitHubSecretStringKey
-    value: secret 
+    value: secret
+  - name: ExternalDomain
+    value: 5387-141-2-185-32.eu.ngrok.io
 #   If you are using github enterprise, provide a value for GitHubDomain
 #  - name: GitHubDomain
 #    value: git.corp.com

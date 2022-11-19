@@ -5,7 +5,7 @@ metadata:
   namespace: getting-started
 rules:
 - apiGroups:
-  - v1
+  - ""
   resources:
   - secrets
   verbs:
