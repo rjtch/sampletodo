@@ -5,4 +5,4 @@ tide:
   - labels:
     - approved
     repos:
-    - rjtchBot/lighthouse-config
+    - rjtch/sampletodo

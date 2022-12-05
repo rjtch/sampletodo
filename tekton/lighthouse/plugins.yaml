@@ -1,7 +1,7 @@
 approve:
 - lgtm_acts_as_approve: false
   repos:
-  - rjtchBot/lighthouse-config
+  - rjtch/sampletodo
   require_self_approval: true
 config_updater:
   gzip: false
@@ -11,7 +11,7 @@ config_updater:
     plugins.yaml:
       name: plugins
 plugins:
-  rjtchBot/lighthouse-config:
+  rjtch/sampletodo:
   - config-updater
   - approve
   - lgtm

@@ -1,0 +1,27 @@
+git:
+  kind: github
+  name: github
+  server: https://github.com
+
+user: "rjtch"
+oauthToken: "**********************"
+hmacToken: "**********************"
+
+cluster:
+  crds:
+    create: true
+
+tektoncontroller:
+  dashboardURL: http://localhost:9097
+
+engines:
+  jx: false
+  tekton: true
+
+webhooks:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+    hosts:
+    - "nip.io"
